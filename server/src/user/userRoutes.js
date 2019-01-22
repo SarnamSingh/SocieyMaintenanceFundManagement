@@ -5,7 +5,7 @@ const execute = require('../utility/dbHelper');
 const utility = require('../utility/utility');
 const responseObject = require('../models/responseModel');
 
-router.get('/', (req, res) => {
+router.get('/authenticate', (req, res) => {
     const user = new User();
     user.loginId = req.body.loginId;
     user.loginPassword = utility.encrypt(req.body.loginPassword, global.gCurrentEnvironmentConfiguration.encryptionDecryptionKey);

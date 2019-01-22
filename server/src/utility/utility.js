@@ -13,3 +13,7 @@ exports. decrypt = (encryptedData, key)=>{
     decrypted += decipher.final('utf-8');
     return decrypted;
 }
+
+exports.logError = (response)=>{
+console.log(`Error : ${response.errorMessage}, stack: ${response.errorStack}`);
+};
