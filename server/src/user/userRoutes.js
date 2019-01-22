@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
-const dbHelper = require('../utility/dbHelper');
+const execute = require('../utility/dbHelper');
 const utility = require('../utility/utility');
 const responseObject = require('../models/responseModel');
 
@@ -29,7 +29,7 @@ router.get('/', (req, res) => {
     user.gender = req.body.gender;
     user.loginId = req.body.loginId;
     user.loginPassword = utility.encrypt( req.body.loginPassword.toString(), global.gCurrentEnvironmentConfiguration.encryptionDecryptionKey);
-    dbHelper.insert(user, "usp_User_Insert", (err, data) => {
+    execute(user, "usp_User_Insert", (err, data) => {
         const responseDetail = new responseObject();
         if (err) {
             responseDetail.status = "fail";

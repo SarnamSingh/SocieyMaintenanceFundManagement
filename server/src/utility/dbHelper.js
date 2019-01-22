@@ -4,7 +4,6 @@ const tdsTypes = tedious.TYPES;
 const tdsRequest = tedious.Request;
 const procedureMapping = require('./procedureMapping');
 
-
 const dbConnectionConfiguration ={
     userName : "smfmappuser",
     password : "smfm@12345",
@@ -15,6 +14,7 @@ const dbConnectionConfiguration ={
     }
 }
 
+const output = [];
 const sqlConnection = new tdsConnection(dbConnectionConfiguration);
 sqlConnection.on('connect', (err)=>{
  if(err){ 
@@ -24,22 +24,29 @@ sqlConnection.on('connect', (err)=>{
         console.log('SQL connecton established successfully.');
     }
 });
-const executeSelectQuery = (inputObject, query, callback)=>{
-    
-}
-const executeInsertQuery = (inputObject, query, callback ) => {
+
+const executeQuery = (inputObject, query, callback ) => {
 
     const sqlRequest = new tdsRequest(query, (err, rowCount, rows)=>{
        if(err){
         callback(err, null);
        }
        else{
-          callback("inserted successfully", null);
+          callback("inserted successfully", output);
          }
        
     });
     procedureMapping.get(query).forEach(element => {
         sqlRequest.addParameter(element.propColumn, getTediousType(element.type), getModelProperty(element.modelProperty, inputObject) )
+    });
+    sqlRequest.on('row', (columns) => {
+        if (columns) {
+            const currentRow = new Object();
+            columns.forEach((column) => {
+                currentRow[column.metadata.colName] = column.value;
+            });
+            output.push(currentRow);
+        }
     });
     sqlConnection.callProcedure(sqlRequest);
 };
@@ -74,10 +81,7 @@ const getModelProperty = (prop, inputObject) => {
     }
 };
 
-module.exports = {
-insert : executeInsertQuery
-}
-
+module.exports = executeQuery;
 
 
 
