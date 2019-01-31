@@ -3,7 +3,7 @@
         "port": 3000,
         "encryptionDecryptionKey" : "myencryptionkey",
         "tokenKey" : "mytokenkey",
-        "tokenExpirationTime" : "300",
+        "tokenExpirationTime" : "20m",
         "dbLoginUser" : "smfmappuser",
         "dbLoginPassword": "smfm@12345",
         "dbServer" : "DEEKSHA-PC",

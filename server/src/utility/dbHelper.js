@@ -79,7 +79,17 @@ const getModelProperty = (prop, inputObject) => {
         return inputObject;
     }
     else {
-        return inputObject[prop];
+     let value = null;
+        if (typeof inputObject[prop] === 'string' && inputObject[prop].length > 0){
+            value = inputObject[prop];
+        }
+        if (typeof inputObject[prop] === 'number' && inputObject[prop] !== 0){
+            value = inputObject[prop];
+        }
+        if (typeof inputObject[prop] === 'boolean'){
+            value = inputObject[prop];
+        }
+        return value;
     }
 };
 

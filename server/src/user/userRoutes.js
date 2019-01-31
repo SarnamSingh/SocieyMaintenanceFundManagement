@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
-const execute = require('../utility/dbHelper');
+const executeQuery = require('../utility/dbHelper');
 const utility = require('../utility/utility');
 const responseObject = require('../models/responseModel');
 const jwt = require('jsonwebtoken');
@@ -11,7 +11,7 @@ router.post('/login', (req, res) => {
     const user = new User();
     user.loginId = req.body.loginId;
     user.loginPassword = utility.encrypt(req.body.loginPassword, global.gEnvConfig.encryptionDecryptionKey);
-    execute(user, "usp_User_SelectByLoginIdPassword", (err, data)=>{
+    executeQuery(user, "usp_User_SelectByLoginIdPassword", (err, data)=>{
         const responseDetail = new responseObject();
         if (err) {
             responseDetail.status = "fail";
@@ -27,7 +27,31 @@ router.post('/login', (req, res) => {
         res.json(responseDetail);
 });
 });
-router.post('/', (req, res)=>{
+router.get('/:id', (req, res)=>{
+    const user = new User();
+    user.id = +(req.params["id"]);
+    executeQuery(user, "usp_User_SelectById", (err, data)=>{
+        res.json(utility.getResponse(err, data));
+    });
+})
+.get('/', (req, res)=>{
+    let user = new User();
+    let procedureName = '';
+    if(req.query && Object.keys(req.query).length > 0){
+        for (const queryParam in req.query){
+            user[queryParam] = req.query[queryParam];
+        }
+        procedureName = 'usp_User_SelectByAnyColumn';
+    }
+    else{
+        procedureName =  "usp_User_SelectAll";
+        user = null;
+    }
+    executeQuery(user, procedureName, (err, data)=>{
+        res.json(utility.getResponse(err, data));
+    });
+    })
+.post('/', (req, res)=>{
     const user = new User();
     user.firstName = req.body.firstName;
     user.lastName = req.body.lastName;
@@ -37,27 +61,30 @@ router.post('/', (req, res)=>{
     user.gender = req.body.gender;
     user.loginId = req.body.loginId;
     user.loginPassword = utility.encrypt( req.body.loginPassword.toString(), global.gEnvConfig.encryptionDecryptionKey);
-    execute(user, "usp_User_Insert", (err, data) => {
-        const responseDetail = new responseObject();
-        if (err) {
-            responseDetail.status = "fail";
-            responseDetail.errorMessage = err.message;
-            responseDetail.errorStack = err.stack;
-        }
-        else {
-            responseDetail.status = "success";
-            responseDetail.data = data;
-        }
-        res.json(responseDetail);
-
+    executeQuery(user, "usp_User_Insert", (err, data) => {
+        res.json(utility.getResponse(err, data));
     });
 
 })
-.put('/', auth.authenticate() ,(req, res)=>{
-    res.json('user put request');
+.put('/', auth.authenticate(),  (req, res)=>{
+    const user = new User();
+    user.id = req.body.id;
+    user.email = req.body.email;
+    user.role.id = req.body.role.id;
+    user.userType.id = req.body.userType.id;
+    user.loginId = req.body.loginId;
+    executeQuery(user, "usp_User_Update", (err, data)=>{
+        res.json(utility.getResponse(err, data));
+    })
+   
 })
-.delete('/', auth.authenticate() ,(req, res)=>{
-    res.json('user delete request');
+.delete('/',  auth.authenticate(), (req, res)=>{
+    const user = new User();
+    user.id = req.body.id;
+    executeQuery(user, "usp_User_Delete",(err, data)=>{
+        res.json(utility.getResponse(err, data));
+    })
+   
 })
 
 module.exports = router;

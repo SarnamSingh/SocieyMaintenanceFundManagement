@@ -21,6 +21,14 @@
         {"propColumn":"Id",         "type": "number",  "modelProperty":"id"},
         {"propColumn":"Email",      "type": "string",  "modelProperty":"email"},
         {"propColumn":"RoleId",     "type": "number",  "modelProperty":"role.id"},
-        {"propColumn":"UserTypeId", "type": "number",  "modelProperty":"userType.id"}
-        ]
+        {"propColumn":"UserTypeId", "type": "number",  "modelProperty":"userType.id"},
+        {"propColumn":"LoginId",       "type": "string",  "modelProperty":"loginId"}
+        ],
+    "usp_User_SelectAll":[],
+    "usp_User_SelectById": [
+        {"propColumn":"Id",         "type": "number",  "modelProperty":"id"}
+    ],
+    "usp_User_SelectByAnyColumn":[
+        
+    ]
 }
