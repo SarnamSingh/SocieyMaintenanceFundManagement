@@ -4,6 +4,6 @@ const config = require ('./config.json');
 const defaultConfig = config.development;
 const environmentConfig = config[process.env.NODE_ENV];    
 const currentConfig = _.merge( defaultConfig, environmentConfig);
-global.gCurrentEnvironmentConfiguration = currentConfig;
+global.gEnvConfig = currentConfig;
 
 

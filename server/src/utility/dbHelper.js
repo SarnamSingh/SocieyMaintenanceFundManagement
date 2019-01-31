@@ -4,40 +4,42 @@ const tdsTypes = tedious.TYPES;
 const tdsRequest = tedious.Request;
 const procedureMapping = require('./procedureMapping');
 
-const dbConnectionConfiguration ={
-    userName : "smfmappuser",
-    password : "smfm@12345",
-    server : "localhost",
-    options : {
-        database: 'smfm'
-
-    }
+const dbConnectionConfiguration = {
+    server: global.gEnvConfig.dbServer,
+    authentication: {
+        type: "default",
+        options: {
+            userName: global.gEnvConfig.dbLoginUser,
+            password: global.gEnvConfig.dbLoginPassword,
+            database: global.gEnvConfig.dbName
+        }
+    },
 }
 
 const output = [];
 const sqlConnection = new tdsConnection(dbConnectionConfiguration);
-sqlConnection.on('connect', (err)=>{
- if(err){ 
-     console.log(`Error occurred while connection to server :${err}` );
+sqlConnection.on('connect', (err) => {
+    if (err) {
+        console.log(`Error occurred while connection to server :${err}`);
     }
-    else{
+    else {
         console.log('SQL connecton established successfully.');
     }
 });
 
-const executeQuery = (inputObject, query, callback ) => {
+const executeQuery = (inputObject, query, callback) => {
 
-    const sqlRequest = new tdsRequest(query, (err, rowCount, rows)=>{
-       if(err){
-        callback(err, null);
-       }
-       else{
-          callback("inserted successfully", output);
-         }
-       
+    const sqlRequest = new tdsRequest(query, (err, rowCount, rows) => {
+        if (err) {
+            callback(err, null);
+        }
+        else {
+            callback(null, output);
+        }
+
     });
     procedureMapping.get(query).forEach(element => {
-        sqlRequest.addParameter(element.propColumn, getTediousType(element.type), getModelProperty(element.modelProperty, inputObject) )
+        sqlRequest.addParameter(element.propColumn, getTediousType(element.type), getModelProperty(element.modelProperty, inputObject))
     });
     sqlRequest.on('row', (columns) => {
         if (columns) {
@@ -51,19 +53,19 @@ const executeQuery = (inputObject, query, callback ) => {
     sqlConnection.callProcedure(sqlRequest);
 };
 
-const getTediousType = (inputType)=>{
-    switch (inputType.toLowerCase()){
+const getTediousType = (inputType) => {
+    switch (inputType.toLowerCase()) {
         case "string":
-        return tdsTypes.VarChar
-        break;
+            return tdsTypes.VarChar
+            break;
         case "number":
-        return tdsTypes.Int
-        break;
+            return tdsTypes.Int
+            break;
         case "datetime":
-        return tdsTypes.DateTime
+            return tdsTypes.DateTime
         case "boolean":
-        return tdsTypes.Bit
-        
+            return tdsTypes.Bit
+
     }
 };
 
@@ -72,7 +74,7 @@ const getModelProperty = (prop, inputObject) => {
     if (prop.indexOf('.' > 0)) {
         const props = prop.split('.');
         props.forEach(prop => {
-        inputObject = inputObject[prop];
+            inputObject = inputObject[prop];
         });
         return inputObject;
     }
